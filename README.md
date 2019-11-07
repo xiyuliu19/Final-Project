@@ -13,7 +13,7 @@ The major part of this project is the implement of a TMB pipeline to calulate th
 After I get the further TMB file contains the TMB value for each case, I want to analyze the data in two levels.  
 1. variantions (based on the MAF file): In R studio, library "MAFtools", analyze the variant classification, variant type, SNV class, variants per case, and top 10 mutated genes. Create plots, such as waterfall map and gene word cloud.  
 2. Relationship between TMB and gene expression （based on the further TMB file and the txt file）: This part is concentrate on differential analysis. In R studio, library "limma", analyze the gene expression in different TMB groups and output the differences in all genes. Create heat map.  
-## Proposed timeline & major mialstones  
+## Proposed timeline & major milestones  
 Timelines:    
 Due to 11/06/2018: Identify the original dataset and the major things I want to analysis based on the TMB value.  
 Due to 11/13/2018: Identify the pipeline used to calculate the TMB value. Complete the dataset organization and complete the first part of the analysis based on the MAF file. (Milestone 1)  
