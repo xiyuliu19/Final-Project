@@ -12,9 +12,9 @@ To realize it, the first step is to transfer FASTQ files to BAM files using BWA-
 Next, using Strelka to call variant, and this step can transfer BAM files to VCF files.  
 Then, annotating the VCF files by SNPEFF, and getting MAF files.  
 Now, ***the first part of variation analysis can be done in R studio.***  
-1.	Library "MAFtools"  
-2.Analyze the variant classification, variant type, SNV class, variants per case, and top 10 mutated genes.  
-3.	Create plots, such as waterfall map and gene word cloud.  
+        1.Library "MAFtools"  
+        2.Analyze the variant classification, variant type, SNV class, variants per case, and top 10 mutated genes.  
+        3.Create plots, such as waterfall map and gene word cloud.  
 ***The second part of this project in dealing with tumor microsatellite instability classification is performed by MSIpred.***   
   
 ## Proposed timeline & major milestones  
