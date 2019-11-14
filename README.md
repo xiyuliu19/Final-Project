@@ -41,8 +41,8 @@ FASTQ_Directory=/home/xiyuliu/source
 For normal:   
 R1=normal_L002_R1_001.fastq   
 R2=normal_L002_R2_001.fastq   
-For tumor:   
    
+For tumor:   
 R1=tumor_L001_R1_001.fastq   
 R2=tumor_L001_R2_001.fastq  
    
