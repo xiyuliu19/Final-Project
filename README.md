@@ -37,12 +37,15 @@ gunzip tumor_L001_R1_001.fastq.gz
 gunzip tumor_L001_R2_001.fastq.gz
 ```
 FASTQ_Directory=/home/xiyuliu/source   
+   
 For normal:   
 R1=normal_L002_R1_001.fastq   
 R2=normal_L002_R2_001.fastq   
 For tumor:   
+   
 R1=tumor_L001_R1_001.fastq   
-R2=tumor_L001_R2_001.fastq   
+R2=tumor_L001_R2_001.fastq  
+   
 #### Reference Data   
 **For alignment**:   
 ```
@@ -50,12 +53,14 @@ wget http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz
 gunzip hg38.fa.gz  
 ```
 Ref_ali=/home/xiyuliu/hg38.fa   
+   
 **For annotation**:   
 ```
 wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/GRCh38.primary_assembly.genome.fa.gz   
 gunzip GRCh38.primary_assembly.genome.fa.gz   
 ```
 Ref_ann=/home/xiyuliu/GRCh38.primary_assembly.genome.fa   
+   
 #### Software Implement   
 From fastq to sam:  **`BWA-MEM`**   
 ```
