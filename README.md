@@ -27,9 +27,15 @@ Due to 12/05/2019: Complete the HTML Notebook. Post the final project.
 ***
 ## Progress Update   
 ### 11/12/2019   
+* Milestone 1   
 #### Dataset   
 Original_Data=/home/xiyuliu/unitTest_data   
-gunzip   
+```
+gunzip normal_L002_R1_001.fastq.gz
+gunzip normal_L002_R2_001.fastq.gz
+gunzip tumor_L001_R1_001.fastq.gz
+gunzip tumor_L001_R2_001.fastq.gz
+```
 FASTQ_Directory=/home/xiyuliu/source   
 For normal:   
 R1=normal_L002_R1_001.fastq   
@@ -39,18 +45,31 @@ R1=tumor_L001_R1_001.fastq
 R2=tumor_L001_R2_001.fastq   
 #### Reference Data   
 **For alignment**:   
+```
 wget http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz   
-gunzip hg38.fa.gz   
+gunzip hg38.fa.gz  
+```
 Ref_ali=/home/xiyuliu/hg38.fa   
 **For annotation**:   
+```
 wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/GRCh38.primary_assembly.genome.fa.gz   
 gunzip GRCh38.primary_assembly.genome.fa.gz   
+```
 Ref_ann=/home/xiyuliu/GRCh38.primary_assembly.genome.fa   
-#### Software installation   
-From fastq to bam:  **BWA-MEM**   
+#### Software Implement   
+From fastq to sam:  **`BWA-MEM`**   
+```
 git clone https://github.com/lh3/bwa.git   
 cd bwa  
 make  
 ./bwa index hg38.fa  
 ./bwa mem hg38.fa normal_L002_R1_001.fastq normal_L002_R2_001.fastq | gzip -3 > normal-aln-pe.sam.gz   
 ./bwa mem hg38.fa tumor_L001_R1_001.fastq tumor_L001_R2_001.fastq | gzip -3 > tumor-aln-pe.sam.gz   
+gunzip normal-aln-pe.sam.gz   
+gunzip tumor-aln-pe.sam.gz   
+```
+From sam to bam: **`samtools`**   
+```
+samtools view -b -S normal-aln-pe.sam > normal-aln-pe.bam   
+samtools view -b -S tumor-aln-pe.sam > tumor-aln-pe.bam   
+```
