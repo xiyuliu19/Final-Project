@@ -78,3 +78,10 @@ From sam to bam: **`samtools`**
 samtools view -b -S normal-aln-pe.sam > normal-aln-pe.bam   
 samtools view -b -S tumor-aln-pe.sam > tumor-aln-pe.bam   
 ```
+***
+In the next 7 days:   
+1. Running Strelka to make the bam files to VCF files.    
+2. Running vcf2maf to make the VCF files to MAF files.    
+3. Finishing the variant analysis part using maftools within R.    
+***
+
