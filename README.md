@@ -106,7 +106,9 @@ gunzip somatic.indels.vcf.gz
 gunzip somatic.snvs.vcf.gz   
 ```
 ***
-Annotation：**`SnpEff`**  
+Annotation 1：**`SnpEff`**  
+Environment:   
+**`java`**   
 Installation   
 ```
 wget https://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip   
@@ -121,4 +123,61 @@ Run:
 java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh37.75 somatic.indels.vcf > somatic.indels_snpeff.vcf   
 java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh37.75 somatic.snvs.vcf > somatic.snvs_snpeff.vcf   
 ```
+Output files:    
+somatic.indels_snpeff.vcf   
+somatic.snvs_snpeff.vcf   
+***
+Annotation 2: **`oncotator`**   
+Environment:   
+**`Python`**  
+Installation   
+```
+wget https://github.com/broadinstitute/oncotator/archive/v1.9.2.0.tar.gz   
+pip install v1.9.2.0.tar.gz --user   
+```
+Download reference database:   
+```
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/oncotator/oncotator_v1_ds_April052016.tar.gz   
+tar zxvf oncotator_v1_ds_April052016.tar.gz
+```
+Run:   
+```
+Oncotator -v --db-dir oncotator_v1_ds_April052016 --input_format=VCF --output_format=TCGAMAF somatic.indels.vcf somatic_indels.maf hg19   
+Oncotator -v --db-dir oncotator_v1_ds_April052016 --input_format=VCF --output_format=TCGAMAF somatic.snvs.vcf somatic_snvs.maf hg19   
+```
+Output files:   
+somatic_indels.maf   
+somatic_snvs.maf   
+***
+Annotation 3: **`Annovar`**   
+Environment:   
+**`Perl`**    
+Installation   
+Download requires xiyuliu@usc.edu email registration   
+Get the link to download ANNOVAR via email   
+```
+tar xvfz annovar.latest.tar.gz   
+cd annovar   
+```
+Download reference database:   
+```
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar refGene humandb/   
+```
+Input file format conversion   
+```
+./convert2annovar.pl -format vcf4old somatic.indels.vcf > somatic.indels.avinput   
+./convert2annovar.pl -format vcf4old somatic.snvs.vcf > somatic.snvs.avinput   
+```
+Run
+```
+./annotate_variation.pl -geneanno -dbtype refGene -out somatic_indels -build hg19 somatic.indels.avinput humandb/   
+./annotate_variation.pl -geneanno -dbtype refGene -out somatic_snvs -build hg19 somatic.snvs.avinput humandb/ 
+```
+Output files:   
+somatic_indels.exonic_variant_function   
+somatic_indels.variant_function   
+somatic_indels.log   
+somatic_snvs.exonic_variant_function   
+somatic_snvs.variant_function   
+somatic_snvs.log   
 ***
