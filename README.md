@@ -85,3 +85,23 @@ In the next 7 days:
 3. Finishing the variant analysis part using maftools within R.    
 ***
 
+From bam to vcf: **`Strelka`**   
+Installation   
+```
+wget https://github.com/Illumina/strelka/releases/download/v2.8.2/strelka-2.8.2.centos5_x86_64.tar.bz2   
+tar xvfj strelka-2.8.2.centos5_x86_64.tar.bz2   
+```
+Preparation: **`samtools`**   
+```
+samtools sort normal-aln-pe.bam > normal-sorted.bam   
+samtools sort tumor-aln-pe.bam > tumor-sorted.bam   
+samtools index normal-sorted.bam   
+samtools index tumor-sorted.bam   
+```
+Run   
+```
+/home/xiyuliu/bwa/strelka-2.8.2.centos5_x86_64/bin/configureStrelkaSomaticWorkflow.py --normalBam normal-sorted.bam --tumorBam tumor-sorted.bam --referenceFasta hg38.fa --runDir demo_somatic --exome   
+./home/xiyuliu/bwa/strelka-2.8.2.centos5_x86_64/bin/demo_somatic/runWorkflow.py -m local -j 8   
+gunzip somatic.indels.vcf.gz   
+gunzip somatic.snvs.vcf.gz   
+```
