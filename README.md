@@ -105,3 +105,20 @@ Run
 gunzip somatic.indels.vcf.gz   
 gunzip somatic.snvs.vcf.gz   
 ```
+***
+Annotation：**`SnpEff`**  
+Installation   
+```
+wget https://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip   
+unzip snpEff_latest_core.zip   
+```
+Download reference database:   
+```
+java -jar snpEff.jar download GRCh37.75   
+```
+Run:   
+```
+java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh37.75 somatic.indels.vcf > somatic.indels_snpeff.vcf   
+java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh37.75 somatic.snvs.vcf > somatic.snvs_snpeff.vcf   
+```
+***
