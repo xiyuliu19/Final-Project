@@ -182,5 +182,34 @@ Run
 ```
 ***
 Tumor Microsatellite Instability classification of melanoma: **`MSIpred`**   
+Install Environment：
+```
+pip install -U scikit-learn==0.19.1 --user
+pip install -U intervaltree==2.1.0 --user   
+pip install -U pandas==0.20.3 --user   
+```
+Install MSIpred package:   
+```
+python setup.py install   
+```
+Download Database:   
+```
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/database/simpleRepeat.txt.gz   
+```
+Unit test:  
+```
+#Run python    
+>>> import MSIpred as mp   
+>>> unit_maf = mp.Raw_Maf(maf_path='unit.maf')   
+>>> unit_maf.create_tagged_maf(ref_repeats_file='simpleRepeat.txt',tagged_maf_file = 'tagged_unit.maf')   
+>>> tagged_unit_maf = mp.Tagged_Maf(tagged_maf_path='tagged_unit.maf')   
+>>> unit_features = tagged_unit_maf.make_feature_table(exome_size=44)   
+>>> predicted_MSI = mp.msi_prediction(feature_table=unit_features,svm_model=None)   
+>>> predicted_MSI.to_csv('MSIpred_prediction.csv')
+>>> quit()
+```
+***
+
+
 
 
