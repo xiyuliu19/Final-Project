@@ -106,6 +106,13 @@ gunzip somatic.indels.vcf.gz
 gunzip somatic.snvs.vcf.gz   
 ```
 ***
+Annotation VCF: **`VEP`**
+   
+From VCF to MAF: **`vcf2maf`**
+      
+***
+Explore other annotation methods:   
+   
 Annotation 1：**`SnpEff`**  
 Environment:   
 **`java`**   
@@ -173,4 +180,7 @@ Run
 ./annotate_variation.pl -geneanno -dbtype refGene -out somatic_indels -build hg38 somatic.indels.avinput humandb/   
 ./annotate_variation.pl -geneanno -dbtype refGene -out somatic_snvs -build hg38 somatic.snvs.avinput humandb/ 
 ```
- ***
+***
+Tumor Microsatellite Instability classification of melanoma: **`MSIpred`**   
+
+
