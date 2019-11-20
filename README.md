@@ -116,16 +116,16 @@ unzip snpEff_latest_core.zip
 ```
 Download reference database:   
 ```
-java -jar snpEff.jar download GRCh37.75   
+java -jar snpEff.jar download GRCh38.86   
 ```
 Run:   
 ```
-java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh37.75 somatic.indels.vcf > somatic.indels_snpeff.vcf   
-java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh37.75 somatic.snvs.vcf > somatic.snvs_snpeff.vcf   
+java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh38.86 somatic.indels.vcf > somatic_indels_snpeff.vcf   
+java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh38.86 somatic.snvs.vcf > somatic_snvs_snpeff.vcf   
 ```
 Output files:    
-somatic.indels_snpeff.vcf   
-somatic.snvs_snpeff.vcf   
+somatic_indels_snpeff.vcf   
+somatic_snvs_snpeff.vcf   
 ***
 Annotation 2: **`oncotator`**   
 Environment:   
