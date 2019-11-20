@@ -161,7 +161,7 @@ cd annovar
 ```
 Download reference database:   
 ```
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar refGene humandb/   
+perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar refGene humandb/   
 ```
 Input file format conversion   
 ```
@@ -170,14 +170,7 @@ Input file format conversion
 ```
 Run
 ```
-./annotate_variation.pl -geneanno -dbtype refGene -out somatic_indels -build hg19 somatic.indels.avinput humandb/   
-./annotate_variation.pl -geneanno -dbtype refGene -out somatic_snvs -build hg19 somatic.snvs.avinput humandb/ 
+./annotate_variation.pl -geneanno -dbtype refGene -out somatic_indels -build hg38 somatic.indels.avinput humandb/   
+./annotate_variation.pl -geneanno -dbtype refGene -out somatic_snvs -build hg38 somatic.snvs.avinput humandb/ 
 ```
-Output files:   
-somatic_indels.exonic_variant_function   
-somatic_indels.variant_function   
-somatic_indels.log   
-somatic_snvs.exonic_variant_function   
-somatic_snvs.variant_function   
-somatic_snvs.log   
-***
+ ***
