@@ -145,9 +145,13 @@ Run
 ```
 perl vcf2maf.pl --input-vcf somatic_snvs_PASS.vcf --output-maf somatic_snvs_PASS.maf --ref-fasta hg38.fa --filter-vcf ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz --vep-path ../ensembl-vep --vep-data ~/.vep --ncbi-build GRCh38   
 ```
+Checking the maf file: finding the pathogenic variant (NM_004333.6(BRAF):c.1799T>A (p.Val600Glu))   
+```
+grep "c.1799T>A" somatic_snvs_PASS.vep.vcf
+```
 ***
-Special section (not necessary)   
-My struggling process of trying other annotation methods:   
+####Special section (not necessary)   
+My struggling process of trying other annotation methods   
 ***
 Try 1：**`SnpEff`**  
 Environment:   
