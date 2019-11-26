@@ -3,25 +3,21 @@ TRGN 510
 Tumor Microsatellite Instability classification of melanoma
 ***
 ## Description  
-The deliverable of this project is a HTML Notebook which shows the pipelines of transferring FASTQ files to MAF files, and the implement of an existing pipeline—MSIpred for melanoma microsatellite instability classification from tumor mutation annotation data using a support vector machine. What’s more, there are also plots of variation analysis created by R in this project.  
+The deliverable of this project is a HTML Notebook which shows the pipelines of transferring FASTQ files to MAF files. It also contains the application process of an existing pipeline—MSIpred for melanoma microsatellite instability classification from tumor mutation annotation data using a support vector machine and the MSI prediction result.   
 ## Datasets  
-The dataset for this project is FASTQ files made up of melanoma cases. In the process, reference files are also needed for aligning and annotation.
+The dataset of this project is consist of FASTQ files made up of melanoma cases. In the process, reference files are also need for aligning and annotation.
 ## Proposed Analysis  
 The core process of this project is getting tumor microsatellite instability classification based on FASTQ files.  
-To realize it, the first step is to transfer FASTQ files to BAM files using BWA-MEM for aligning.  
-Next, using Strelka to call variant, and this step can transfer BAM files to VCF files.  
-Then, annotating the VCF files by SNPEFF, and getting MAF files.  
-Now, ***the first part of variation analysis can be done in R studio.***  
-        1.Library "MAFtools"  
-        2.Analyze the variant classification, variant type, SNV class, variants per case, and top 10 mutated genes.  
-        3.Create plots, such as waterfall map and gene word cloud.  
-***The second part of this project in dealing with tumor microsatellite instability classification is performed by MSIpred.***   
-  
+To realize it, the first step is to transfer FASTQ files to BAM files using `BWA-MEM` for aligning.  
+Next, using `Strelka` to call variant, and this step can transfer BAM files to VCF files.  
+Then, annotating the VCF files by `VEP`, and using `VCF2MAF` to get MAF files.  
+Lastly, using `MSIpred` to get the MSI prediction result.   
+   
 ## Proposed timeline & major milestones  
 Timelines:   
 Due to 11/08/2019: Identify the pipeline for tumor microsatellite instability classification and the cancer type for analysis.   
 Due to 11/13/2019: Complete the alignment and variant calling part by successfully transferring FASTQ files to VCF files. (Milestone 1)   
-Due to 11/20/2019: Complete the annotation part by successfully transferring VCF files to MAF files. And finish the variant analysis work by R. (Milestone 2)   
+Due to 11/20/2019: Complete the annotation part by successfully transferring VCF files to MAF files. (Milestone 2)    
 Due to 11/27/2019: Complete the microsatellite instability classification. (Milestone 3)   
 Due to 12/05/2019: Complete the HTML Notebook. Post the final project.   
 ***
@@ -81,10 +77,10 @@ samtools view -b -S tumor-aln-pe.sam > tumor-aln-pe.bam
 ***
 In the next 7 days:   
 1. Running Strelka to make the bam files to VCF files.    
-2. Running vcf2maf to make the VCF files to MAF files.    
-3. Finishing the variant analysis part using maftools within R.    
+2. Running VEP and vcf2maf to make the VCF files to MAF files.       
 ***
-
+### 11/20/2019   
+* Milestone 2    
 From bam to vcf: **`Strelka`**   
 Installation   
 ```
@@ -105,15 +101,55 @@ Run
 gunzip somatic.indels.vcf.gz   
 gunzip somatic.snvs.vcf.gz   
 ```
+Extracting and generating a VCF file with only "PASS":   
+```
+awk -F '\t' '{if($0 ~ /\#/) print; else if($7 == "PASS") print}' somatic.snvs.vcf > somatic_snvs_PASS.vcf   
+```
 ***
-Annotation VCF: **`VEP`**
-   
-From VCF to MAF: **`vcf2maf`**
-      
+Annotation VCF: **`VEP`**   
+Environment:   
+**`Perl`**    
+Installation   
+```
+git clone https://github.com/Ensembl/ensembl-vep.git   
+cd ensembl-vep   
+cpanm Try::Tiny  
+cpanm DBD::mysql  
+curl -L http://cpanmin.us | perl - --notest -l $PERL_PATH LWP::Simple LWP::Protocol::https Archive::Extract Archive::Tar Archive::Zip CGI DBI Time::HiRes --force   
+perl INSTALL.pl   
+y  #Do you want to install any cache files (y/n)?   
+y  #Cache directory /home/xiyuliu/.vep does not exists - do you want to create it (y/n)?   
+320  #The following species/files are available; which do you want (can specify multiple separated by spaces or 0 for all)?   
+y  #Do you want to install any FASTA files (y/n)?   
+85  #FASTA files for the following species are available; which do you want (can specify multiple separated by spaces, "0" to install for species specified for cache download)?   
+y  #Do you want to install any plugins (y/n)?   
+y  #Plugins directory /home/xiyuliu/.vep/Plugins does not exists - do you want to create it (y/n)?   
+0  #The following plugins are available; which do you want (can specify multiple separated by spaces or 0 for all)?   
+```
+From VCF to MAF: **`vcf2maf`**   
+Installation   
+Downloading the source code of the latest stable release from https://github.com/mskcc/vcf2maf/releases.   
+Uploading it into the sever.
+```
+scp /Users/Liu/vcf2maf-1.6.17.zip xiyuliu@trgn.usc.edu:/home/xiyuliu/vcf2maf/
+#Connecting the sever
+cd vcf2maf
+gunzip vcf2maf-1.6.17.zip
+cd vcf2maf-1.6.17
+```
+Preparation   
+```
+wget ftp://ftp.broadinstitute.org/pub/ExAC_release/current/subsets/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz   
+```
+Run   
+```
+perl vcf2maf.pl --input-vcf somatic_snvs_PASS.vcf --output-maf somatic_snvs_PASS.maf --ref-fasta hg38.fa --filter-vcf ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz --vep-path ../ensembl-vep --vep-data ~/.vep --ncbi-build GRCh38   
+```
 ***
-Explore other annotation methods:   
-   
-Annotation 1：**`SnpEff`**  
+Special section (not necessary)   
+My struggling process of trying other annotation methods:   
+***
+Try 1：**`SnpEff`**  
 Environment:   
 **`java`**   
 Installation   
@@ -130,11 +166,10 @@ Run:
 java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh38.86 somatic.indels.vcf > somatic_indels_snpeff.vcf   
 java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh38.86 somatic.snvs.vcf > somatic_snvs_snpeff.vcf   
 ```
-Output files:    
-somatic_indels_snpeff.vcf   
-somatic_snvs_snpeff.vcf   
+However, the `vcf2maf` can not ideal with input files annotated by snpEff.    
+So, this annotaion method is dropped.   
 ***
-Annotation 2: **`oncotator`**   
+Try 2: **`oncotator`**   
 Environment:   
 **`Python`**  
 Installation   
@@ -152,11 +187,9 @@ Run:
 Oncotator -v --db-dir oncotator_v1_ds_April052016 --input_format=VCF --output_format=TCGAMAF somatic.indels.vcf somatic_indels.maf hg19   
 Oncotator -v --db-dir oncotator_v1_ds_April052016 --input_format=VCF --output_format=TCGAMAF somatic.snvs.vcf somatic_snvs.maf hg19   
 ```
-Output files:   
-somatic_indels.maf   
-somatic_snvs.maf   
+However, as it can be seen, the oncotator can only use the reference database of hg19 because it did not update after 2015. So I can not use it because my reference database used for alignment is hg38.   
 ***
-Annotation 3: **`Annovar`**   
+Try 3: **`Annovar`**   
 Environment:   
 **`Perl`**    
 Installation   
@@ -180,7 +213,14 @@ Run
 ./annotate_variation.pl -geneanno -dbtype refGene -out somatic_indels -build hg38 somatic.indels.avinput humandb/   
 ./annotate_variation.pl -geneanno -dbtype refGene -out somatic_snvs -build hg38 somatic.snvs.avinput humandb/ 
 ```
+However, the `vcf2maf` can not ideal with input files annotated by annovar.    
+So, this annotaion method is also dropped.    
 ***
+In the next 7 days:
+Running `MSIpred` to get the MSI prediction result.   
+***
+### 11/26/2019   
+* Milestone 3  
 Tumor Microsatellite Instability classification of melanoma: **`MSIpred`**   
 Install Environment：
 ```
@@ -196,20 +236,54 @@ Download Database:
 ```
 wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/database/simpleRepeat.txt.gz   
 ```
-Unit test:  
+Preparation of the input MAF file:   
+Because in my maf file (somatic_snvs_PASS.maf), there are individual items in the chromosome column that contain some special values other than "chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX","chrY, I need to filter them first, otherwise an error will be reported.   
+Creating a python script (filter.py) to filter out the special values.   
+```
+vi filter.py   
+```
+```
+#!/usr/bin/python   
+   
+from __future__ import print_function
+
+maf = "somatic_snvs_PASS.maf"
+
+chrs = {"chr1":1,"chr2":1,"chr3":1,"chr4":1,"chr5":1,"chr6":1,"chr7":1,"chr8":1,"chr9":1,"chr10":1,
+		"chr11":1,"chr12":1,"chr13":1,"chr14":1,"chr15":1,"chr16":1,"chr17":1,"chr18":1,"chr19":1,
+		"chr20":1,"chr21":1,"chr22":1,"chrX":1,"chrY":1}
+
+with open(maf) as mfin,open("somatic_snvs_PASS_filter_by_chr.maf","w") as outf:
+	h1 = mfin.readline().strip()
+	h2 = mfin.readline().strip()
+	print(h1,file=outf)
+	print(h2,file=outf)
+	for line in mfin:
+		content = line.strip().split("\t")
+		if content[4] in chrs:
+			print(line.strip(),file=outf)
+```
+```
+chmod 755 filter.py   
+./filter.py   
+```
+Run:  
 ```
 #Run python    
 >>> import MSIpred as mp   
->>> unit_maf = mp.Raw_Maf(maf_path='unit.maf')   
->>> unit_maf.create_tagged_maf(ref_repeats_file='simpleRepeat.txt',tagged_maf_file = 'tagged_unit.maf')   
->>> tagged_unit_maf = mp.Tagged_Maf(tagged_maf_path='tagged_unit.maf')   
->>> unit_features = tagged_unit_maf.make_feature_table(exome_size=44)   
->>> predicted_MSI = mp.msi_prediction(feature_table=unit_features,svm_model=None)   
+>>> snvs_maf = mp.Raw_Maf(maf_path='somatic_snvs_PASS_filter_by_chr.maf')   
+>>> snvs_maf.create_tagged_maf(ref_repeats_file='simpleRepeat.txt',tagged_maf_file = 'tagged_snvs.maf')   
+>>> tagged_snvs_maf = mp.Tagged_Maf(tagged_maf_path='tagged_snvs.maf')   
+>>> snvs_features = tagged_snvs_maf.make_feature_table(exome_size=44)   
+>>> predicted_MSI = mp.msi_prediction(feature_table=snvs_features,svm_model=None)   
 >>> predicted_MSI.to_csv('MSIpred_prediction.csv')
 >>> quit()
 ```
 ***
-
+Now, I have the MSI prediction result for my sample. The result is **MSS**.  
+In the next 7 days:
+1. Creating some plots using R.   
+2. Creating the HTML Notebook for posting.   
 
 
 
