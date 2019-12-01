@@ -1,0 +1,339 @@
+---
+title: 'Final-Project: Tumor Microsatellite Instability classification of a melanoma
+  case'
+output:
+  html_document:
+    df_print: paged
+---
+# Xiyu Liu
+# December, 5, 2019
+
+## Description
+The deliverable of this project is a HTML Notebook which shows the pipelines of transferring FASTQ files to MAF files. It also contains the application process of an existing pipeline—MSIpred for melanoma microsatellite instability classification from tumor mutation annotation data using a support vector machine and the MSI prediction result.
+
+## Datasets
+The dataset of this project is consist of FASTQ files made up of melanoma cases. In the process, reference files are also need for aligning and annotation.
+
+## Proposed Analysis
+The core process of this project is getting tumor microsatellite instability classification based on FASTQ files.
+
+To realize it, the first step is to transfer FASTQ files to BAM files using BWA-MEM for aligning.
+Next, using Strelka to call variant, and this step can transfer BAM files to VCF files.
+
+Then, annotating the VCF files by VEP, and using VCF2MAF to get MAF files.
+
+Lastly, using MSIpred to get the MSI prediction result.
+
+### Log in the trgn sever and check the data
+
+```{bash eval=FALSE}
+cd /scratch/xiyuliu/unitTest_data
+```
+
+### Unzip the files
+
+```{bash eval=FALSE}
+gunzip normal_L002_R1_001.fastq.gz
+gunzip normal_L002_R2_001.fastq.gz
+gunzip tumor_L001_R1_001.fastq.gz
+gunzip tumor_L001_R2_001.fastq.gz
+```
+
+## From FASTQ to BAM
+
+### Install BWA
+
+```{bash eval=FALSE}
+mkdir bwa
+cd bwa
+git clone https://github.com/lh3/bwa.git   
+cd bwa  
+make
+```
+
+### Download aligbment reference data
+
+```{bash eval=FALSE}
+wget http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz   
+gunzip hg38.fa.gz  
+```
+
+### Run BWA-MEM for aligning
+
+```{bash eval=FALSE}
+./bwa index hg38.fa  
+./bwa mem hg38.fa normal_L002_R1_001.fastq normal_L002_R2_001.fastq | gzip -3 > normal-aln-pe.sam.gz   
+./bwa mem hg38.fa tumor_L001_R1_001.fastq tumor_L001_R2_001.fastq | gzip -3 > tumor-aln-pe.sam.gz   
+gunzip normal-aln-pe.sam.gz   
+gunzip tumor-aln-pe.sam.gz   
+```
+
+### We get .sam files in this stage, but we need .bam files.
+
+### Install samtools(v.1.6)
+
+```{bash eval=FALSE}
+wget https://github.com/samtools/samtools/releases/download/1.6/samtools-
+ 1.6.tar.bz2
+ cd samtools-1.6
+ ./configure
+ make   
+```
+
+### Run samtools
+```{bash eval=FALSE}
+samtools view -b -S normal-aln-pe.sam > normal-aln-pe.bam   
+samtools view -b -S tumor-aln-pe.sam > tumor-aln-pe.bam   
+```
+
+### Here, we have successfully processed the FASTQ files to BAM files
+
+## From BAM to VCF
+
+### Imstall Strelka
+```{bash eval=FALSE}
+wget https://github.com/Illumina/strelka/releases/download/v2.8.2/strelka-2.8.2.centos5_x86_64.tar.bz2   
+tar xvfj strelka-2.8.2.centos5_x86_64.tar.bz2 
+```
+
+### Prepare the properate files for Strelka
+
+```{bash eval=FALSE}
+samtools sort normal-aln-pe.bam > normal-sorted.bam   
+samtools sort tumor-aln-pe.bam > tumor-sorted.bam   
+samtools index normal-sorted.bam   
+samtools index tumor-sorted.bam   
+```
+
+### Run Strelka for variant calling
+
+```{bash eval=FALSE}
+/home/xiyuliu/bwa/strelka-2.8.2.centos5_x86_64/bin/configureStrelkaSomaticWorkflow.py --normalBam normal-sorted.bam --tumorBam tumor-sorted.bam --referenceFasta hg38.fa --runDir demo_somatic --exome   
+./home/xiyuliu/bwa/strelka-2.8.2.centos5_x86_64/bin/demo_somatic/runWorkflow.py -m local -j 8   
+gunzip somatic.indels.vcf.gz   
+gunzip somatic.snvs.vcf.gz     
+```
+
+### Here, we have successfully processed the BAM files to VCF files.
+
+#### Because we want to calculate the tumor microsatellite instability, we only need to considerate the snv variant, we will only use the somatic.snvs.vcf file for next steps.
+
+### Extract and generate a VCF file with only filtered "PASS".
+
+```{bash eval=FALSE}
+awk -F '\t' '{if($0 ~ /\#/) print; else if($7 == "PASS") print}' somatic.snvs.vcf > somatic_snvs_PASS.vcf    
+```
+
+### Annotate VCF file
+
+### Install VEP for annotation
+
+#### Reminder: The VEP is working in the environment of Perl, please check if your already have Perl installed. 
+
+```{bash eval=FALSE}
+git clone https://github.com/Ensembl/ensembl-vep.git   
+cd ensembl-vep   
+cpanm Try::Tiny  
+cpanm DBD::mysql  
+curl -L http://cpanmin.us | perl - --notest -l $PERL_PATH LWP::Simple LWP::Protocol::https Archive::Extract Archive::Tar Archive::Zip CGI DBI Time::HiRes --force   
+perl INSTALL.pl   
+y  #Do you want to install any cache files (y/n)?   
+y  #Cache directory /home/xiyuliu/.vep does not exists - do you want to create it (y/n)?   
+320  #The following species/files are available; which do you want (can specify multiple separated by spaces or 0 for all)?   
+y  #Do you want to install any FASTA files (y/n)?   
+85  #FASTA files for the following species are available; which do you want (can specify multiple separated by spaces, "0" to install for species specified for cache download)?   
+y  #Do you want to install any plugins (y/n)?   
+y  #Plugins directory /home/xiyuliu/.vep/Plugins does not exists - do you want to create it (y/n)?   
+0  #The following plugins are available; which do you want (can specify multiple separated by spaces or 0 for all)?     
+```
+
+## From VCF to MAF
+
+```{bash eval=FALSE}
+mkdir vcf2maf   
+```
+
+### Install vcf2maf
+
+Download the source code of the latest stable release from https://github.com/mskcc/vcf2maf/releases.
+
+
+Upload it to the sever.
+
+```{bash eval=FALSE}
+scp /Users/Liu/vcf2maf-1.6.17.zip xiyuliu@trgn.usc.edu:/home/xiyuliu/vcf2maf/   
+```
+
+```{bash eval=FALSE}
+cd vcf2maf
+gunzip vcf2maf-1.6.17.zip
+cd vcf2maf-1.6.17   
+```
+
+### Download the files needed to support operation
+
+```{bash eval=FALSE}
+wget ftp://ftp.broadinstitute.org/pub/ExAC_release/current/subsets/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz     
+```
+
+### Run VEP and vcf2maf 
+
+```{bash eval=FALSE}
+perl vcf2maf.pl --input-vcf somatic_snvs_PASS.vcf --output-maf somatic_snvs_PASS.maf --ref-fasta hg38.fa --filter-vcf ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz --vep-path ../ensembl-vep --vep-data ~/.vep --ncbi-build GRCh38    
+```
+
+### Here, we have successfully processed the VCF file to MAF file.
+
+#### Check the maf file by finding the pathogenic variant (NM_004333.6(BRAF):c.1799T>A (p.Val600Glu))
+
+```{bash eval=FALSE}
+grep "c.1799T>A" somatic_snvs_PASS.maf    
+```
+
+#### Classify Tumor Microsatellite Instability of this melanoma case by MSIpred
+
+### Install required environment
+
+```{bash eval=FALSE}
+pip install -U scikit-learn==0.19.1 --user
+pip install -U intervaltree==2.1.0 --user   
+pip install -U pandas==0.20.3 --user       
+```
+
+### Install MSIpred package
+
+```{bash eval=FALSE}
+python setup.py install    
+```
+
+### Download required Database
+
+```{bash eval=FALSE}
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/database/simpleRepeat.txt.gz    
+```
+
+### Preparation of the input MAF file for MSIpred
+
+Because in my maf file (somatic_snvs_PASS.maf), there are individual items in the chromosome column that contain some special values other than "chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX","chrY, I need to filter them first, otherwise an error will be reported.
+
+#### Creating a python script (filter.py) to filter out the special values.
+
+```{bash eval=FALSE}
+vi filter.py   
+```
+
+```{python.reticulate = FALSE}
+#!/usr/bin/python   
+   
+from __future__ import print_function
+
+maf = "somatic_snvs_PASS.maf"
+
+chrs = {"chr1":1,"chr2":1,"chr3":1,"chr4":1,"chr5":1,"chr6":1,"chr7":1,"chr8":1,"chr9":1,"chr10":1,
+		"chr11":1,"chr12":1,"chr13":1,"chr14":1,"chr15":1,"chr16":1,"chr17":1,"chr18":1,"chr19":1,
+		"chr20":1,"chr21":1,"chr22":1,"chrX":1,"chrY":1}
+
+with open(maf) as mfin,open("somatic_snvs_PASS_filter_by_chr.maf","w") as outf:
+	h1 = mfin.readline().strip()
+	h2 = mfin.readline().strip()
+	print(h1,file=outf)
+	print(h2,file=outf)
+	for line in mfin:
+		content = line.strip().split("\t")
+		if content[4] in chrs:
+			print(line.strip(),file=outf)   
+```
+
+```{bash eval=FALSE}
+chmod 755 filter.py   
+./filter.py   
+```
+
+### Run MSIpred to get the prediction result
+
+```{python.reticulate = FALSE}
+python
+>>> import MSIpred as mp   
+>>> snvs_maf = mp.Raw_Maf(maf_path='somatic_snvs_PASS_filter_by_chr.maf')   
+>>> snvs_maf.create_tagged_maf(ref_repeats_file='simpleRepeat.txt',tagged_maf_file = 'tagged_snvs.maf')   
+>>> tagged_snvs_maf = mp.Tagged_Maf(tagged_maf_path='tagged_snvs.maf')   
+>>> snvs_features = tagged_snvs_maf.make_feature_table(exome_size=44)   
+>>> predicted_MSI = mp.msi_prediction(feature_table=snvs_features,svm_model=None)   
+>>> predicted_MSI.to_csv('MSIpred_prediction.csv')
+>>> quit()
+```
+
+### Here, we have got the csv file that contains the MSI classification of this melanoma case.
+
+### The result is MSS.
+
+### Variant Analysis
+
+### Open RStudio
+
+### Set the working directory  
+  
+```{r}
+setwd('/Users/Liu/')
+```
+
+### Install maftools Package  
+  
+```{r}
+source("http://bioconductor.org/biocLite.R")
+biocLite("maftools")
+library(maftools)
+```
+
+### Load the .maf file into a dataframe
+
+```{r}
+snvs_maf = read.maf(maf ='~/Desktop/somatic.snvs.maf')
+```
+
+### Plot summary statistics of the MAF file
+
+#### The dashboard style includes statistics for "Variant Classification", "Variant Type", "SNV Class", "Variants per sample", "Variant Classification summary", and "Top 10 mutated genes".
+
+```{r}
+plotmafSummary(maf = snvs_maf, rmOutlier = TRUE, addStat = 'median')
+```
+
+### Plot a lollipop chart of pathogenic gene mutation to show the protein's domains and the location and type of amino acid mutations
+
+```{r}
+lollipopPlot(snvs_maf, gene="BRAF", AACol="HGVSp_Short", showMutationRate=TRUE)
+```
+
+### Plot chromosome-scale mutation spacing to show hyper mutated genomic region
+
+```{r}
+rainfallPlot(maf= snvs_maf, detectChangePoints=TRUE, pointSize=0.6)
+```
+
+### Count the TMB of the MAF file and compare it with the cohorts of 33 built-in TCGA
+
+```{r}
+luad.mutload <- tcgaCompare(maf= snvs_maf)
+```
+
+### Visualization of Variant Allele Frequency, showing several genes with the highest VAF in boxplots
+
+```{r}
+plotVaf(maf= snvs_maf)
+```
+
+### Annotate the pfam domain of the top 10 mutation that caused the amino acid change
+
+```{r}
+luad.pfam <- pfamDomains(maf= snvs_maf, AACol="HGVSp_Short", top=10)
+```
+
+### Infer tumor heterogeneity by clustering allele frequency VAF
+
+```{r}
+vafclust <- inferHeterogeneity(maf= snvs_maf, tsb="TUMOR")
+plotClusters(clusters=vafclust)
+```
+
+### Done!
