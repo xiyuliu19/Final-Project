@@ -147,7 +147,7 @@ perl vcf2maf.pl --input-vcf somatic_snvs_PASS.vcf --output-maf somatic_snvs_PASS
 ```
 Checking the maf file: finding the pathogenic variant (NM_004333.6(BRAF):c.1799T>A (p.Val600Glu))   
 ```
-grep "c.1799T>A" somatic_snvs_PASS.vep.vcf
+grep "c.1799T>A" somatic_snvs_PASS.maf
 ```
 ***
 ####Special section (not necessary)   
