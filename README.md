@@ -226,6 +226,10 @@ Running `MSIpred` to get the MSI prediction result.
 ### 11/26/2019   
 * Milestone 3  
 Tumor Microsatellite Instability classification of melanoma: **`MSIpred`**   
+Get MSIpred:  
+```
+git clone https://github.com/bioinfolabmu/MSIpred.git
+```
 Install Environment：
 ```
 pip install -U scikit-learn==0.19.1 --user
