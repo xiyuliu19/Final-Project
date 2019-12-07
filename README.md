@@ -13,15 +13,10 @@ The deliverable of this project is a HTML Notebook which shows the pipelines of 
 The data used for this project are pair-end sequencing FASTQ files. In the process, reference files are also needed for alignment and annotation.   
 ## Proposed Analysis  
 The object of this project is getting tumor microsatellite instability classification of this melanoma case.   
-
 The first step is to converse FASTQ files to BAM files using BWA-MEM for alignment and samtools for format conversion.   
-
 Next, using Strelka to call variants, and this step can concerse BAM files to VCF files.   
-
 Then, annotating the useful VCF file by VEP, and using VCF2MAF to converse the VCF file to MAF file.   
-
 Then, using MSIpred to get the MSI prediction result.   
-
 Lastly, using R package maftools to analyze and visualize variants.     
 ## Proposed timeline & major milestones  
 Timelines:   
@@ -65,6 +60,7 @@ Here, we get a fasta file called “hg38.fa”.
 
 #### Software Implement   
 From fastq to sam:  **`BWA-MEM`**   
+  
 Installation  
 ```
 mkdir bwa  
@@ -84,6 +80,7 @@ gunzip tumor-aln-pe.sam.gz
 The outputs are two SAM files called “normal-aln-pe.sam” and “tumor-aln-pe.sam”.  
 
 From sam to bam: **`samtools`**   
+  
 Installation  
 ```
 wget https://github.com/samtools/samtools/releases/download/1.6/samtools-
@@ -107,6 +104,7 @@ In the next 7 days:
 ### 11/20/2019   
 * Milestone 2    
 From bam to vcf: **`Strelka`**   
+  
 Installation   
 ```
 wget https://github.com/Illumina/strelka/releases/download/v2.8.2/strelka-2.8.2.centos5_x86_64.tar.bz2   
@@ -120,6 +118,7 @@ samtools index normal-sorted.bam
 samtools index tumor-sorted.bam   
 ```
 Here, we get two nem BAM files called “normal-sorted.bam” and “tumor-sorted.bam”.  
+  
 Run   
 ```
 /home/xiyuliu/bwa/strelka-2.8.2.centos5_x86_64/bin/configureStrelkaSomaticWorkflow.py --normalBam normal-sorted.bam --tumorBam tumor-sorted.bam --referenceFasta hg38.fa --runDir demo_somatic --exome   
@@ -129,7 +128,7 @@ gunzip somatic.snvs.vcf.gz
 ```
 The outputs are two VCF files called “somatic.indels.vcf” and “somatic.snvs.vcf”. 
 Check the VCF file.
-
+  
 Extract and generate a VCF file with only filtered “PASS” variants   
 ```
 awk -F '\t' '{if($0 ~ /\#/) print; else if($7 == "PASS") print}' somatic.snvs.vcf > somatic_snvs_PASS.vcf   
@@ -137,6 +136,7 @@ awk -F '\t' '{if($0 ~ /\#/) print; else if($7 == "PASS") print}' somatic.snvs.vc
 The output is a new VCF file called “somatic_snvs_PASS.vcf” with only filtered “PASS” variants.  
 ***
 Annotation VCF: **`VEP`**   
+  
 Environment:   
 **`Perl`**    
 Installation   
@@ -157,6 +157,7 @@ y  #Plugins directory /home/xiyuliu/.vep/Plugins does not exists - do you want t
 0  #The following plugins are available; which do you want (can specify multiple separated by spaces or 0 for all)?   
 ```
 From VCF to MAF: **`vcf2maf`**   
+  
 Installation    
 Download the source code of the latest stable release from https://github.com/mskcc/vcf2maf/releases.     
 Upload it into the sever.  
@@ -174,6 +175,7 @@ Download the files needed to support operation
 wget ftp://ftp.broadinstitute.org/pub/ExAC_release/current/subsets/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz   
 ```
 Here, we got a VCF file called “ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz”.   
+  
 Run   
 ```
 perl vcf2maf.pl --input-vcf somatic_snvs_PASS.vcf --output-maf somatic_snvs_PASS.maf --ref-fasta hg38.fa --filter-vcf ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz --vep-path ../ensembl-vep --vep-data ~/.vep --ncbi-build GRCh38   
@@ -186,9 +188,8 @@ grep "c.1799T>A" somatic_snvs_PASS.maf
 ```
 Here, we have successfully processed the VCF file to MAF file.  
 ***
-####Special section (not include in the final project)   
+#### Special section (not include in the final project)   
 My struggling process of trying other annotation methods   
-***
 Try 1：**`SnpEff`**  
 Environment:   
 **`java`**   
@@ -208,7 +209,7 @@ java -Xmx4G -jar snpEff.jar -i vcf -o vcf GRCh38.86 somatic.snvs.vcf > somatic_s
 ```
 However, the `vcf2maf` can not ideal with input files annotated by snpEff.    
 So, this annotaion method is dropped.   
-***
+  
 Try 2: **`oncotator`**   
 Environment:   
 **`Python`**  
@@ -228,7 +229,7 @@ Oncotator -v --db-dir oncotator_v1_ds_April052016 --input_format=VCF --output_fo
 Oncotator -v --db-dir oncotator_v1_ds_April052016 --input_format=VCF --output_format=TCGAMAF somatic.snvs.vcf somatic_snvs.maf hg19   
 ```
 However, as it can be seen, the oncotator can only use the reference database of hg19 because it did not update after 2015. So I can not use it because my reference database used for alignment is hg38.   
-***
+  
 Try 3: **`Annovar`**   
 Environment:   
 **`Perl`**    
