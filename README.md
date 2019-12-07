@@ -318,10 +318,11 @@ with open(maf) as mfin,open("somatic_snvs_PASS_filter_by_chr.maf","w") as outf:
 chmod 755 filter.py   
 ./filter.py   
 ```
-The output is a new MAF file called "somatic_snvs_PASS_filter_by_chr.maf".   
-Run:  
+The output is a new MAF file called "somatic_snvs_PASS_filter_by_chr.maf".  
+  
+Run
 ```
-#Run python    
+python    
 >>> import MSIpred as mp   
 >>> snvs_maf = mp.Raw_Maf(maf_path='somatic_snvs_PASS_filter_by_chr.maf')   
 >>> snvs_maf.create_tagged_maf(ref_repeats_file='simpleRepeat.txt',tagged_maf_file = 'tagged_snvs.maf')   
@@ -332,14 +333,16 @@ Run:
 >>> quit()
 ```
 The outputs are one file called "tagged_snvs.maf" and one file called "MSIpred_prediction.csv".  
+  
 As it is showed in the CSV file, the MSI classification status of this melanoma case is **MSS**.  
+  
 Here, we have successfully predicted the MSI status of this melanoma case.  
 ***  
 In the next 7 days:   
 1. Doing variant analysis and visualization with R package maftools.   
 2. Creating a HTML Notebook for publishing.   
 ***
-###12/06/2019   
+### 12/06/2019   
 Variant Analysis and Visualization  
 
 Preparation steps:  
