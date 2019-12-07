@@ -3,8 +3,10 @@ TRGN 510
 Tumor Microsatellite Instability classification of a melanoma case  
   
 **RPubs address for publishing the HTML R Notebook: http://rpubs.com/XIYULIU/557451**
+   
+**The four unzipped fastq files are in my trgn sever directory of /scratch/xiyuliu/source**
   
-**All required files, intermediate files, and outputs are in my trgn sever.  
+**All the required reference files, intermediate files, outputs, and python script are in my trgn sever.  
 The directory is /home/xiyuliu/TRGN510-Final-Project**  
 ***
 ## Description  
