@@ -26,6 +26,8 @@ Due to 11/13/2019: Complete the alignment and variant calling part by successful
 Due to 11/20/2019: Complete the annotation part by successfully transferring VCF files to MAF files. (Milestone 2)    
 Due to 11/27/2019: Complete the microsatellite instability classification. (Milestone 3)   
 Due to 12/05/2019: Complete the variant analysis and visualization in R and create a HTML Notebook. Publish it on RPubs and post the final project in Github.   
+## User Interface  
+A HTML R Notebook on RPubs: http://rpubs.com/XIYULIU/557451  
 ***
 ## Progress Update   
 ### 11/12/2019   
