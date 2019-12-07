@@ -6,8 +6,7 @@ Tumor Microsatellite Instability classification of a melanoma case
    
 **The four unzipped fastq files are in my trgn sever directory of /scratch/xiyuliu/source**
   
-**All the required reference files, intermediate files, outputs, and python script are in my trgn sever.  
-The directory is /home/xiyuliu/TRGN510-Final-Project**  
+**All the required reference files, intermediate files, outputs, and python script are in my trgn sever. The directory is /home/xiyuliu/TRGN510-Final-Project**  
 ***
 ## Description  
 The deliverable of this project is a HTML Notebook which shows the pipelines of conversing FASTQ files to MAF files. It also contains the application process of using an existing MSI classification pipeline — MSIpred to classify the MSI status of a melanoma case. What’s more, the variant analysis and visualization are done by maftools package in R.  
