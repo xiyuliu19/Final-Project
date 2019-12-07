@@ -415,6 +415,8 @@ luad.pfam$domainSummary[,1:3, with=FALSE]
   
 All Done!  
 ***
+The deliverable of this project:  
+  
 Publish the HTML R Notebook on RPubs (http://rpubs.com/XIYULIU/557451).  
+  
 Post the final project on Github (xiyuliu19), including a LICENSE, a Final Project.Rmd, a Final-Project.html, an issue report after peer review by Eric(ericpanrc) (QA.md), the final MAF file generated after all the required procedures and as the input file for MSIpred (somatic_snvs_PASS_filter_by_chr.maf), and the MSI prediction result file (MSIpred_prediction.csv).    
-
