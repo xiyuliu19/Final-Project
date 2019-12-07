@@ -284,8 +284,11 @@ wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/database/simpleRepeat.txt.gz
 gunzip simpleRepeat.txt.gz  
 ```
 Here, we get a TXT file called “simpleRepeat.txt”.  
+   
 Preparation of the input MAF file for MSIpred:   
-In my maf file (somatic_snvs_PASS.maf), there are individual items that contain some special values other than “chr1”,“chr2”,“chr3”,“chr4”,“chr5”,“chr6”,“chr7”,“chr8”,“chr9”,“chr10”,“chr11”,“chr12”,“chr13”,“chr14”,“chr15”,“chr16”,“chr17”,“chr18”,“chr19”,“chr20”,“chr21”,“chr22”,“chrX”, and “chrY” in the chromosome column, we need to filter them out first, otherwise an error will be reported of the “Chromosome”.   
+   
+In my maf file (somatic_snvs_PASS.maf), there are individual items that contain some special values other than “chr1”,“chr2”,“chr3”,“chr4”,“chr5”,“chr6”,“chr7”,“chr8”,“chr9”,“chr10”,“chr11”,“chr12”,“chr13”,“chr14”,“chr15”,“chr16”,“chr17”,“chr18”,“chr19”,“chr20”,“chr21”,“chr22”,“chrX”, and “chrY” in the chromosome column, we need to filter them out first, otherwise an error will be reported of the “Chromosome”.  
+   
 Create a python script (filter.py) to filter out the special values.   
 ```
 vi filter.py   
